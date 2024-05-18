@@ -1,9 +1,71 @@
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdbool.h>
 
 #define MAXSIZE 100
+#define ABCSIZE 26
+
+void ingresarCadena(char cadena[]) {
+    fgets(cadena, MAXSIZE, stdin);
+}
+
+// Convertir la cadena a minusculas y eliminar caracteres especiales y espacios
+void limpiarCadena(char cadena[], char cadenaLimpia[]) {
+    int j = 0;
+    for(int i = 0; cadena[i] != '\0'; i++) {
+        if((cadena[i] >= 'a' && cadena[i] <= 'z') || (cadena[i] >= 'A' && cadena[i] <= 'Z')) {
+            if(cadena[i] >= 'A' && cadena[i] <= 'Z') {
+                cadena[i] += ('a' - 'A');
+            }
+        cadenaLimpia[j] = cadena[i];
+        j++;
+        }
+    }
+    cadenaLimpia[j] = '\0';
+}
+
+void limpiarBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void bubbleSort(char cadena[], int size) {
+    for (int paso = 0; paso < size - 1; ++paso) {
+        for (int i = 0; i < size - paso - 1; ++i) {
+            if (cadena[i] > cadena[i + 1]) {
+                char aux = cadena[i];
+                cadena[i] = cadena[i + 1];
+                cadena[i + 1] = aux;
+            }
+        }
+    }
+}
+
+bool sonAnagramas(char cadena1[], char cadena2[]) {
+    if(strlen(cadena1) != strlen(cadena2)) {
+        return false;
+    }
+    
+    bubbleSort(cadena1, strlen(cadena1));
+    bubbleSort(cadena2, strlen(cadena2));
+    
+    for (int i = 0; i != '\0'; i++) {
+        if (cadena1[i] != cadena2[i]) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+
+void imprimirResultado(char cadena1[], char cadena2[], bool resultado) {
+    if (resultado) {
+        printf("Las palabras %s y %s son anagramas.\n", cadena1, cadena2);
+    } else {
+        printf("Las palabras %s y %s no son anagramas.\n", cadena1, cadena2);
+    }
+}
 
 int main() {
     char anagrama1[MAXSIZE];
@@ -12,67 +74,19 @@ int main() {
     char conversion2[MAXSIZE];
     
     printf("\n\tIdentificador de anagramas\n\n");
+    
     printf("Ingrese la primera palabra:\n");
-    fgets(anagrama1, sizeof(anagrama1), stdin);
-
-    // Convertir la cadena a minusculas y eliminar caracteres especiales y espacios
-    int j = 0;
-    for(int i = 0; anagrama1[i] != '\0'; i++) {
-        if((anagrama1[i] >= 'a' && anagrama1[i] <= 'z') || (anagrama1[i] >= 'A' && anagrama1[i] <= 'Z')) {
-            if(anagrama1[i] >= 'A' && anagrama1[i] <= 'Z') {
-                anagrama1[i] += 32;
-            }
-        conversion1[j] = anagrama1[i];
-        j++;
-        }
-    }
-
-    printf("Digite la segunda palabra:\n");
-    fgets(anagrama2, sizeof(anagrama2), stdin);
-
-    j = 0;
-    for(int i = 0; anagrama2[i] != '\0'; i++) {
-        if((anagrama2[i] >= 'a' && anagrama2[i] <= 'z') || (anagrama2[i] >= 'A' && anagrama2[i] <= 'Z')) {
-            if(anagrama2[i] >= 'A' && anagrama2[i] <= 'Z') {
-                anagrama2[i] += 32;
-            }
-        conversion2[j] = anagrama2[i];
-        j++;
-        }
-    }
-
-    int frecuencia1[26]; 
-    int frecuencia2[26]; 
-
-    int largo1 = strlen(conversion1);
-    int largo2 = strlen(conversion2);
-
-    // Calcular la frecuencia de cada letra 
-    for (int i = 0; i < largo1; i++)
-        frecuencia1[conversion1[i] - 'a']++;
-
-    for (int i = 0; i < largo2; i++)
-        frecuencia2[conversion2[i] - 'a']++;
-
-    // Comparar las frecuencias
-    bool anagramas = true;
-    for (int i = 0; i < 26; i++) {
-        if (frecuencia1[i] != frecuencia2[i]) {
-            anagramas = false;
-            break;
-        }
-    }
-
-    char validacion[25];
-    if(anagramas == true) {
-    strcpy(validacion, "son anagramas");
-    }
-    else {
-    strcpy(validacion, "no son anagramas");
-    }
-
+    ingresarCadena(anagrama1);
+    limpiarCadena(anagrama1, conversion1);
     
-    printf("Las palabras %s y %s %s\n", conversion1, conversion2, validacion);
+    limpiarBuffer();
     
+    printf("Ingrese la segunda palabra:\n");
+    ingresarCadena(anagrama2);
+    limpiarCadena(anagrama2, conversion2);
+    
+    bool validacion = sonAnagramas(conversion1, conversion2);
+    imprimirResultado(conversion1, conversion2, validacion);
+   
     return 0;
 }
