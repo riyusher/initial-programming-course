@@ -45,11 +45,92 @@ bool esBisiesto(int ano) {
     }
 }
 
-/* Remplazar un array de dias y un array de números correspondiente a los días
-según lo validado*/
-
+// Remplazar valores para su procesamiento
+void remplazoDatos(int mes, int ano) {
+    int diasMes, diasAno;
+    // Definir días del año
+    if(esBisiesto(ano)) {
+        diasAno = 366;
+    }
+    else {
+        diasAno = 365;
+    }
+    //Switch para definir los días del mes según el indicado
+    switch(mes) {
+        case 1:// Enero
+            diasMes = 31;
+        break;
+        case 2:// Febrero
+            if(esBisiesto(ano)) {
+                diasMes = 29;
+            }
+            else {
+                diasMes = 28;
+            }
+        break;
+        case 3: // Marzo 
+            diasMes = 31;
+        break;
+        case 4: // Abril
+            diasMes = 30;
+        break;
+        case 5: // Mayo
+            diasMes = 31;
+        break;
+        case 6: // Junio
+            diasMes = 30;
+        break;
+        case 7: // Julio
+            diasMes = 31;
+        break;
+        case 8: // Agosto
+            diasMes = 31;
+        break;
+        case 9: // Septiembre
+            diasMes = 30;
+        break;
+        case 10: // Octubre
+            diasMes = 31;
+        break;
+        case 11: // Noviembre
+            diasMes = 30;
+        break;
+        case 12: // Diciembre
+            diasMes = 31;
+        break;
+    }
+}
 // Imprimir los días de la semana junto a los números correspondientes al mes
-void impresionDatos(char dia[], int numeros[][tamanoSemana]) {
+void impresionDatos(int ano, int mes, char dia[], int numeros[][tamanoSemana]) {
+    //Imprimir Año
+    printf("\t\t%d\t", ano);
+    //Imprimir Mes
+    switch(mes) {
+        case 1: printf("Enero\t\n");
+        break;
+        case 2: printf("Febrero\t\n");
+        break;
+        case 3: printf("Marzo\t\n");
+        break;
+        case 4: printf("Abril\t\n");
+        break;
+        case 5: printf("Mayo\t\n");
+        break;
+        case 6: printf("Junio\t\n");
+        break;
+        case 7: printf("Julio\t\n");
+        break;
+        case 8: printf("Agosto\t\n");
+        break;
+        case 9: printf("Septiembre\t\n");
+        break;
+        case 10: printf("Octubre\t\n");
+        break;
+        case 11: printf("Noviembre\t\n");
+        break;
+        case 12: printf("Diciembre\t\n");
+        break;
+    }
     // Impresión de los días de la semana
     for (int i = 0; i < tamanoSemana; i++) {
         printf("%c\t", dia[i]);
@@ -58,6 +139,10 @@ void impresionDatos(char dia[], int numeros[][tamanoSemana]) {
     // Impresión de los números del mes
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < tamanoSemana; j++) {
+            if(numeros[i][j] == 0) {
+                printf("\t");
+                continue;
+            }
             printf("%d\t", numeros[i][j]);
         }
         printf("\n");
@@ -65,19 +150,19 @@ void impresionDatos(char dia[], int numeros[][tamanoSemana]) {
 }
 
 int main() {
-    int ano, mes;
-    char dia[tamanoSemana] = {'L', 'M', 'M', 'J', 'V', 'S', 'D'}; // Días de la semana
+    int ano = 1990, mes = 5;
+    char diaSemana[tamanoSemana] = {'L', 'M', 'M', 'J', 'V', 'S', 'D'}; // Días de la semana
     int numeroDia[6][tamanoSemana] = {
         {1, 2, 3, 4, 5, 6, 7},
         {8, 9, 10, 11, 12, 13, 14},
         {15, 16, 17, 18, 19, 20, 21},
         {22, 23, 24, 25, 26, 27, 28},
-        {29, 30, 31, 0, 0, 0, 0}, // Los ceros indican días vacíos
-        {0, 0, 0, 0, 0, 0, 0} // Dejar vacía esta fila si el mes no tiene 31 días
+        {29, 30, 31},
+        {}
     };
 
-    printf("\n\tCalendario\n\n");
-    impresionDatos(dia, numeroDia);
+    printf("\n\t\tCalendario\n\n");
+    impresionDatos(ano, mes, diaSemana, numeroDia);
 
     return 0;
 }
