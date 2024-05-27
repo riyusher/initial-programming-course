@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define tamanoSemana 7
+#define TAMANOSEMANA 7
+#define TAMANOMAXMES 42
 
 void limpiarBuffer() {
     while (getchar() != '\n' && getchar() != EOF);
 }
 
 // Función que lea los datos ingresados
-void peticionDatos(int *ano, int *mes) {
+void peticionDatos(int ano, int mes) {
     printf("Digite el Año (1990 a 2024)\n");
     scanf("%d", ano);
     limpiarBuffer();
-    while (*ano < 1990 || *ano > 2024) {
+    while (ano < 1990 || ano > 2024) {
         printf("Digite un Año Valido (1990 - 2024)\n");
         scanf("%d", ano);
         limpiarBuffer();
@@ -21,7 +22,7 @@ void peticionDatos(int *ano, int *mes) {
     printf("Digita el Mes (1 - 12)\n");
     scanf("%d", mes);
     limpiarBuffer();
-    while (*mes < 1 || *mes > 12) {
+    while (mes < 1 || mes > 12) {
         printf("Digite un Mes Valido (1 - 12)\n");
         scanf("%d", mes);
         limpiarBuffer();
@@ -101,7 +102,7 @@ void remplazoDatos(int mes, int ano) {
     }
 }
 // Imprimir los días de la semana junto a los números correspondientes al mes
-void impresionDatos(int ano, int mes, char dia[], int numeros[][tamanoSemana]) {
+void impresionDatos(int ano, int mes, char dia[], int numeros[]) {
     //Imprimir Año
     printf("\t\t%d\t", ano);
     //Imprimir Mes
@@ -132,34 +133,30 @@ void impresionDatos(int ano, int mes, char dia[], int numeros[][tamanoSemana]) {
         break;
     }
     // Impresión de los días de la semana
-    for (int i = 0; i < tamanoSemana; i++) {
+    for (int i = 0; i < TAMANOSEMANA; i++) {
         printf("%c\t", dia[i]);
     }
     printf("\n");
     // Impresión de los números del mes
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < tamanoSemana; j++) {
-            if(numeros[i][j] == 0) {
+    for(int j = 0; j <= TAMANOMAXMES; j++) {
+        if(j % 7 == 0) {
+            printf("\n");
+        }
+        if(numeros[j] == 0) {
                 printf("\t");
                 continue;
             }
-            printf("%d\t", numeros[i][j]);
-        }
-        printf("\n");
+        printf("%d\t", numeros[j]);
     }
 }
 
 int main() {
     int ano = 1990, mes = 5;
-    char diaSemana[tamanoSemana] = {'L', 'M', 'M', 'J', 'V', 'S', 'D'}; // Días de la semana
-    int numeroDia[6][tamanoSemana] = {
-        {1, 2, 3, 4, 5, 6, 7},
-        {8, 9, 10, 11, 12, 13, 14},
-        {15, 16, 17, 18, 19, 20, 21},
-        {22, 23, 24, 25, 26, 27, 28},
-        {29, 30, 31},
-        {}
-    };
+    char diaSemana[TAMANOSEMANA] = {'L', 'M', 'M', 'J', 'V', 'S', 'D'}; // Días de la semana
+    int numeroDia[TAMANOMAXMES] = {0};
+    for(int i = 0; i <= 31; i++) {
+        numeroDia[i] = i;
+    }
 
     printf("\n\t\tCalendario\n\n");
     impresionDatos(ano, mes, diaSemana, numeroDia);
