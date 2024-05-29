@@ -136,7 +136,7 @@ void impresionDatos(int ano, int mes, char dia[], int numeros[]) {
     for (int i = 0; i < TAMANOSEMANA; i++) {
         printf("%c\t", dia[i]);
     }
-    printf("\n");
+    
     // Impresión de los números del mes
     for(int j = 0; j <= TAMANOMAXMES; j++) {
         if(j % 7 == 0) {
@@ -153,9 +153,9 @@ void impresionDatos(int ano, int mes, char dia[], int numeros[]) {
 int main() {
     int ano = 1990, mes = 5;
     char diaSemana[TAMANOSEMANA] = {'L', 'M', 'M', 'J', 'V', 'S', 'D'}; // Días de la semana
-    int numeroDia[TAMANOMAXMES] = {0};
+    int numeroDia[TAMANOMAXMES] = {1};
     for(int i = 0; i <= 31; i++) {
-        numeroDia[i] = i;
+        numeroDia[i - 1] = i;
     }
 
     printf("\n\t\tCalendario\n\n");
