@@ -59,8 +59,7 @@ int main() {
     printf("\n\tValidador de Tarjetas\n\n");
     printf("Digite el Número de la Tarjeta\n");
 
-    leerArrayChar(tarjeta);
-    limpiarCadenaChar(tarjeta);
+    leerArrayChar(tarjeta); limpiarCadenaChar(tarjeta);
     printf("\n");
 
     int largoTarjeta = strlen(tarjeta);
