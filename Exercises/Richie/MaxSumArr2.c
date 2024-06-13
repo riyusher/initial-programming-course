@@ -2,10 +2,10 @@
 de elementos continuos contenidos*/
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
-int main() {
-    int arr[] = {-2, -5, 1, -3, 4}; int tamArr = sizeof(arr) / sizeof(arr[0]);
-    int iMinSubArr, iMaxSubArr = 0; // Indices que se remplazaran por los indices del subarray que cumpla con la condición
+int maxSumArr(int arr[], int tamArr, int* iMinSubArr, int* iMaxSubArr) {
+     // Indices que se remplazaran por los indices del subarray que cumpla con la condición
     int maxSum = -10000;
 
     // Condicional para saber si el tamaño del array es 1, > 1, o 0
@@ -13,7 +13,7 @@ int main() {
         printf("El Subarray con la suma máxima es: ");
         printf("%d", arr[0]);
         printf("\nPara el cual su suma da: %d\n", arr[0]);
-        return 0;
+        exit;
     }
     else if(tamArr > 1) {
         /*Ciclo mayor que se repite hasta que tamaño del subarray supere
@@ -42,23 +42,33 @@ int main() {
                     maxSum = sum;
                     /* Actualizamos el valor del indice inicial y final del sub array 
                     que cumplió con la condiciónpara su impresión */
-                    iMinSubArr = i;
-                    iMaxSubArr = i + tamSubArr - 1;
+                    *iMinSubArr = i;
+                    *iMaxSubArr = i + tamSubArr - 1;
                 }
             }
             /*Al romperse el ciclo de subarrays aumentar el tamaño de el subarray a comparar
             y el indice inicial se actualizaría a 0 por que está inicializado en el for*/
         }
+        return maxSum;
     }
-    else { // Este sería del caso de que no haya array
-        printf("Usted es estupido\n");
+}
+
+int main() {
+    int arr[] = {-2, -5, 1, -3, 4}; int ArrLen = sizeof(arr) / sizeof(arr[0]);
+    int imSA, iMSA = 0; // Indice Menor y Mayor del SubArray
+
+    int result = maxSumArr(arr, ArrLen, &imSA, &iMSA);
+    // Imprimir Respuesta
+    if (ArrLen == 1) {
         return 0;
     }
-    // Imprimir Respuesta
-    printf("El Subarray con la suma máxima es: ");
-    for(int i = iMinSubArr; i <= iMaxSubArr; i++) {
+    else {
+        printf("El Subarray con la suma máxima es: ");
+    for(int i = imSA; i <= iMSA; i++) {
         printf("%d, ", arr[i]);
     }
-    printf("\nPara el cual su suma da: %d\n", maxSum);
+    printf("\nPara el cual su suma da: %d\n", result);
+    }
+    
     return 0;
 }
