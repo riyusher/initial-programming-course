@@ -1,74 +1,72 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAXLEN 30
 
-void limpiarBufferEntradaArr(char array[]) {
-    int len = strlen(array);
-    if (len > 0 && array[len - 1] == '\n') {
-        array[len - 1] = '\0';
+// Clears the input buffer
+void clearInputBuffer(char array[]) {
+    int length = strlen(array);
+    if (length > 0 && array[length - 1] == '\n') {
+        array[length - 1] = '\0';
     }
 }
 
-void limpiarCadenaChar(char cadena[]) {
-    char cadenaLimpia[MAXLEN];
-    int j = 0;
-    for(int i = 0; cadena[i] != '\0'; i++) {
-        if(cadena[i] >= '0' && cadena[i] <= '9') {
-            cadenaLimpia[j] = cadena[i];        
-            j++;
+// Cleans the char string by removing non-numeric characters
+void cleanCharString(char string[]) {
+    int writeIndex = 0;
+    for(int readIndex = 0; string[readIndex] != '\0'; readIndex++) {
+        if(isdigit(string[readIndex])) {
+            string[writeIndex] = string[readIndex];
+            writeIndex++;
         }
     }
-    cadenaLimpia[j] = '\0';
-    strcpy(cadena, cadenaLimpia);
+    string[writeIndex] = '\0';
 }
 
-// Leer Array
-void leerArrayChar(char peticion[]) {
-    fgets(peticion, MAXLEN, stdin);
-    limpiarBufferEntradaArr(peticion);
-    return;
+// Reads a char array from the user
+void readCharArray(char request[]) {
+    fgets(request, MAXLEN, stdin);
+    clearInputBuffer(request);
 }
 
-// Validar Tarjeta
-bool validarTarjeta(char cadena[], int cadenaLen) {
-    int suma = 0; // Variable entera para manejar en número
-    bool ciclo = false; // booleano para manejar cada segundo número
+// Validates the card number using the Luhn algorithm
+bool validateCard(char string[]) {
+    int stringLen = strlen(string);
+    int sum = 0; 
+    bool flag = false; 
 
-    for(int i = cadenaLen - 1; i >= 0; i--) {
-        // Convertir caracter en número para manipularlo
-        int tempNum = cadena[i] - '0';
-        // Agarrar cada segundo dígito
-
-        if (ciclo) {
+    for(int i = stringLen - 1; i >= 0; i--) {
+        int tempNum = string[i] - '0';
+        
+        // Double every second digit and subtract 9 if the result is greater than 9
+        if (flag) {
             tempNum *= 2;
             if(tempNum > 9) {
                 tempNum -= 9;
             }
         }
-        suma += tempNum;
-        ciclo = !ciclo;
+        sum += tempNum;
+        flag = !flag;
     }
-    // Aplicar la regla del modulo 10 para saber si la suma de la tarjeta es valida
-    return (suma % 10 == 0);
+    // The card number is valid if the sum is a multiple of 10
+    return (sum % 10 == 0);
 }
 
 int main() {
-    char tarjeta[MAXLEN] = {0};
-    printf("\n\tValidador de Tarjetas\n\n");
-    printf("Digite el Número de la Tarjeta\n");
+    char cardNumber[MAXLEN] = {0};
+    printf("\n\tCard Validator\n\n");
 
-    leerArrayChar(tarjeta); limpiarCadenaChar(tarjeta);
-    printf("\n");
+    printf("Enter the Card Number\n");
+    readCharArray(cardNumber);
+    cleanCharString(cardNumber);
 
-    int largoTarjeta = strlen(tarjeta);
-
-    if(validarTarjeta(tarjeta, largoTarjeta)) {
-        printf("\nLa tarjeta es Valida\n");
+    if(validateCard(cardNumber)) {
+        printf("The card is Valid\n");
     }
     else {
-        printf("\nLa tarjeta es Invalida\n");
+        printf("The card is Invalid\n");
     }
 
     return 0;
