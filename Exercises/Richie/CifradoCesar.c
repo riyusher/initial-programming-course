@@ -1,177 +1,151 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
 
 #define MAXSIZE 100
 #define ABCSIZE 26
-#define ESPACIO 32 
+#define SPACE 32 
 
-#define ROJO "\033[0;31m"
-#define VERDE "\033[0;32m"
-#define DEFECTO "\033[0m"
+#define RED "\033[0;31m"
+#define GREEN "\033[0;32m"
+#define DEFAULT "\033[0m"
 
-void rellenarAbcdario(char str[]) {
-    int letra = 'A';
+
+
+void fillAlphabet(char arr[]) {
+    int letter = 'A';
     for(int i = 0; i < ABCSIZE; i++) {
-        str[i] = letra++;
+        arr[i] = letter++;
     }
 }
 
-int menuOpciones() {
-    int n;
-    //Menú de 2 opciones
-    printf("\n\tCifrado Cesar\n\n");
-    printf("1: Cifrar\t2: Descifrar\n");
-    scanf("%d", &n);
-    
-    while(n < 1 || n > 2) {
-        printf("\nDigite una Opción Valida\n");
-        printf("1: Cifrar\t2: Descifrar\n");
-        scanf("%d", &n);
-    }
-    return n;
+typedef enum {
+    ENCRYPT,
+    DECRYPT
+} CipherOption;
+
+CipherOption displayCipherMenuAndGetChoice() {
+    int option;
+    do {
+        printf("\n\tCaesar Cipher\n\n");
+        printf("1: Encrypt\t2: Decrypt\n");
+        printf("Please enter your choice (1 or 2): ");
+        scanf("%d", &option);
+
+        // Clear the input buffer
+        while(getchar() != '\n');
+
+        if(option < 1 || option > 2) {
+            printf("\nEnter a Valid Option\n");
+        }
+    } while(option < 1 || option > 2);
+
+    return option == 1 ? ENCRYPT : DECRYPT;
 }
 
-int peticionPaso() {
+int requestCipherStepSize() {
     int n;
-    //Ingresar Paso
-    printf("\nDigite el paso que desea para el cifrado (Min 1, Max 25):\n");
+    printf("\nEnter the step you want for the cipher (Min 1, Max 25):\n");
     scanf("%d", &n);
     
     while(n < 1 || n > 25) {
-        printf("\nDigite una Opción Valida\n");
-        printf("Digite el paso que desea para el cifrado (Min 1, Max 25):\n");
+        printf("\nEnter a Valid Option\n");
+        printf("Enter the step you want for the cipher (Min 1, Max 25):\n");
         scanf("%d", &n);
     }
+    // Clear the input buffer
+        while(getchar() != '\n');
     return n;
 }
 
-void limpiarBuffer() {
-    while (getchar() != '\n' && getchar() != EOF);//Limpiar el salto de linea de la entrada anterior
+void clearBuffer(char array[]) {
+    int length = strlen(array);
+    if (length > 0 && array[length - 1] == '\n') {
+        array[length - 1] = '\0';
+    }
 }
 
-void peticionTexto(char str[]) {
-    //Ingresar Texto a Procesar
-    printf("\nDigite el texto a procesar (Maximo %d caracteres y no debe contener caracteres especiales):\n", MAXSIZE);
+void readCharArray(char str[]) {
     fgets(str, MAXSIZE, stdin);
-    
-    str[strcspn(str, "\n")] = 0;
+    clearBuffer(str);
 }
 
-void cifrar(char str1[], int str2[], int n) {
-    for(int i = 0; str1[i] != '\0'; i++) {
-            str2[i] = str1[i];
-            if(str2[i] >= 'a' && str2[i] <= 'z') {//Identificar si el caracter es una letra minuscula
-                str2[i] += n;
-                if(str2[i] > 'z') {
-                    str2[i] -= ABCSIZE;
-                }
-            }
-            else if(str2[i] >= 'A' && str2[i] <= 'Z') {//Identificar si el caracter es una letra mayuscula
-                str2[i] += n;
-                if(str2[i] > 'Z') {
-                    str2[i] -= ABCSIZE;
+void cipher(char inputString[], int outputString[], int step, CipherOption option) {
+    int i;
+    for(i = 0; inputString[i] != '\0'; i++) {
+        outputString[i] = inputString[i];
+        if(isalpha(outputString[i])) {
+            outputString[i] += option == ENCRYPT ? step : -step;
+            if(islower(outputString[i])) {
+                if(option == ENCRYPT ? outputString[i] > 'z' : outputString[i] < 'a') {
+                    outputString[i] += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
                 }
             }
             else {
-                str2[i] = ESPACIO;//Manda a la burguer todo lo que no sea letra y lo convierte en ' '
+                if(option == ENCRYPT ? outputString[i] > 'Z' : outputString[i] < 'A') {
+                    outputString[i] += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
+                }
             }
         }
+        else {
+            outputString[i] = SPACE;
+        }
     }
+    outputString[i] = '\0';
+}
 
-void descifrar(char str1[], int str2[], int n) {
-    for(int i = 0; str1[i] != '\0'; i++) {
-            str2[i] = str1[i];
-            if(str2[i] >= 'a' && str2[i] <= 'z') {//Identificar si el caracter es una letra minuscula
-                str2[i] -= n;
-                if(str2[i] < 'a') {
-                    str2[i] += ABCSIZE;
-                }
-            }
-            else if(str2[i] >= 'A' && str2[i] <= 'Z') {//Identificar si el caracter es una letra mayuscula
-                str2[i] -= n;
-                if(str2[i] < 'A') {
-                    str2[i] += ABCSIZE;
-                }
-            }
-            else {
-                str2[i] = ESPACIO;//Manda a la burguer todo lo que no sea letra y lo convierte en ' '
-            }
+void printCipherAlphabet(int n, CipherOption option) {
+    char str[ABCSIZE]; 
+    fillAlphabet(str);
+    for(int i = 0; i < ABCSIZE; i++) {
+        printf("[%c]", str[i]);
+    }
+    printf("\nWith step of %d\n", n);
+    for(int i = 0; i < ABCSIZE; i++) {
+        str[i] += option == ENCRYPT ? n : -n;
+        if(option == ENCRYPT ? str[i] > 'Z' : str[i] < 'A') {
+            str[i] += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
         }
     }
-    
-void impresionAbcdarioCifrado(char str[], int n) {
-    for(int i = 0; i < 10; i++) {//Imprime cada letra del abcdario de la primera a la decima entre []
-            printf("[%c]", str[i]);
-        }
-        printf("\nCon paso de %d\n", n);//Le aumenta el valor ascii segun el paso al abcdario
-        for(int i = 0; i < 10; i++) {
-            str[i] += n;
-            if (str[i] > 'Z') {
-                str[i] -= ABCSIZE;/*Comprueba que no supere el rango y de hacerlo le resta el total del abcdario para 
-                conseguir su equivalente en el retorno del ciclo*/
-            }
-        }
-        for(int i = 0; i < 10; i++) {//Imprime el abcdario con el paso modificado
-            printf("[%c]", str[i]);
-        }
+    for(int i = 0; i < ABCSIZE; i++) {
+        printf("[%c]", str[i]);
     }
-    
-void impresionAbcdarioDescifrado(char str[], int n) {
-    for(int i = 0; i < 10; i++) {//Imprime cada letra del abcdario de la primera a la decima entre []
-            printf("[%c]", str[i]);
-        }
-        printf("\nCon paso de %d\n", n);//Le aumenta el valor ascii segun el paso al abcdario
-        for(int i = 0; i < 10; i++) {
-            str[i] -= n;
-            if (str[i] < 'A') {
-                str[i] += ABCSIZE;/*Comprueba que no supere el rango y de hacerlo le resta el total del abcdario para 
-                conseguir su equivalente en el retorno del ciclo*/
-            }
-        }
-        for(int i = 0; i < 10; i++) {//Imprime el abcdario con el paso modificado
-            printf("[%c]", str[i]);
-        }
+}
+
+void printArr(int arr[]) {
+    for(int i = 0; arr[i] != '\0'; i++) {
+        printf("%c", arr[i]);
     }
-    
-void impresionResultado(char opcion[], char str[],  int conversion[]) {
-    printf("\nEl %s de:\n" ROJO "%s" DEFECTO "\nEs:\n" VERDE, opcion, str);
-    //Imprimir Cifrado o Descifrado
-    for(int i = 0; conversion[i] != '\0'; i++) {
-        printf("%c", conversion[i]);
+}
+
+void printResult(int arr[], CipherOption option) {
+    switch(option) {
+        case ENCRYPT:
+            printf("\nThe Encrypted text is:\n" GREEN);
+        break;
+        
+        case DECRYPT:
+            printf("\nThe Decrypted text is:\n" GREEN);
+        break;
     }
+    printArr(arr);
 }
 
 int main() {
-    char abcdario[ABCSIZE];
-    char texto[MAXSIZE];
-    int conversionTexto[MAXSIZE];
-    char resultado[MAXSIZE];
+    char text[MAXSIZE];
+    int textConversion[MAXSIZE];
     
-    rellenarAbcdario(abcdario);
+    CipherOption option = displayCipherMenuAndGetChoice();
+    int step = requestCipherStepSize();
     
-    int opcion = menuOpciones();
-    int paso = peticionPaso();
+    printf("\nEnter the text to process (Maximum %d characters and should not contain special characters):\n", MAXSIZE);
+    readCharArray(text);
     
-    limpiarBuffer();
+    cipher(text, textConversion, step, option);
+    printCipherAlphabet(step, option);
+    printResult(textConversion, option);
     
-    peticionTexto(texto);
-    
-    switch(opcion) {//Switch para cifrar o descifrar
-        case 1:
-            cifrar(texto, conversionTexto, paso);
-            impresionAbcdarioCifrado(abcdario, paso);
-            strcpy(resultado, "cifrado");
-            impresionResultado(resultado, texto, conversionTexto);
-        break;
-        
-        case 2:
-            descifrar(texto, conversionTexto, paso);
-            impresionAbcdarioDescifrado(abcdario, paso);
-            strcpy(resultado, "descifrado");
-            impresionResultado(resultado, texto, conversionTexto);
-        break;
-    }
-    
-    printf(DEFECTO);
+    printf(DEFAULT);
     return 0;
 }
