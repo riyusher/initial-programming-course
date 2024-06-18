@@ -11,7 +11,20 @@
 #define GREEN "\033[0;32m"
 #define DEFAULT "\033[0m"
 
+#define MIN_STEP_SIZE 1
+#define MAX_STEP_SIZE 25
 
+void clearBuffer(char array[]) {
+    int length = strlen(array);
+    if (length > 0 && array[length - 1] == '\n') {
+        array[length - 1] = '\0';
+    }
+}
+
+void readCharArray(char str[]) {
+    fgets(str, MAXSIZE, stdin);
+    clearBuffer(str);
+}
 
 void fillAlphabet(char arr[]) {
     int letter = 'A';
@@ -19,6 +32,7 @@ void fillAlphabet(char arr[]) {
         arr[i] = letter++;
     }
 }
+
 
 typedef enum {
     ENCRYPT,
@@ -45,48 +59,38 @@ CipherOption displayCipherMenuAndGetChoice() {
 }
 
 int requestCipherStepSize() {
-    int n;
-    printf("\nEnter the step you want for the cipher (Min 1, Max 25):\n");
-    scanf("%d", &n);
-    
-    while(n < 1 || n > 25) {
+    int stepSize;
+    printf("\nEnter the step you want for the cipher (Min %d, Max %d):\n", MIN_STEP_SIZE, MAX_STEP_SIZE);
+    while(scanf("%d", &stepSize) != 1 || stepSize < MIN_STEP_SIZE || stepSize > MAX_STEP_SIZE) {
         printf("\nEnter a Valid Option\n");
-        printf("Enter the step you want for the cipher (Min 1, Max 25):\n");
-        scanf("%d", &n);
-    }
-    // Clear the input buffer
+        printf("Enter the step you want for the cipher (Min %d, Max %d):\n", MIN_STEP_SIZE, MAX_STEP_SIZE);
         while(getchar() != '\n');
-    return n;
-}
-
-void clearBuffer(char array[]) {
-    int length = strlen(array);
-    if (length > 0 && array[length - 1] == '\n') {
-        array[length - 1] = '\0';
     }
+    
+    while(getchar() != '\n');
+    return stepSize;
 }
 
-void readCharArray(char str[]) {
-    fgets(str, MAXSIZE, stdin);
-    clearBuffer(str);
+char shiftCharacter(char character, int step, CipherOption option) {
+    character += option == ENCRYPT ? step : -step;
+    if(islower(character)) {
+        if(option == ENCRYPT ? character > 'z' : character < 'a') {
+            character += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
+        }
+    }
+    else {
+        if(option == ENCRYPT ? character > 'Z' : character < 'A') {
+            character += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
+        }
+    }
+    return character;
 }
 
 void cipher(char inputString[], int outputString[], int step, CipherOption option) {
     int i;
     for(i = 0; inputString[i] != '\0'; i++) {
-        outputString[i] = inputString[i];
-        if(isalpha(outputString[i])) {
-            outputString[i] += option == ENCRYPT ? step : -step;
-            if(islower(outputString[i])) {
-                if(option == ENCRYPT ? outputString[i] > 'z' : outputString[i] < 'a') {
-                    outputString[i] += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
-                }
-            }
-            else {
-                if(option == ENCRYPT ? outputString[i] > 'Z' : outputString[i] < 'A') {
-                    outputString[i] += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
-                }
-            }
+        if(isalpha(inputString[i])) {
+            outputString[i] = shiftCharacter(inputString[i], step, option);
         }
         else {
             outputString[i] = SPACE;
@@ -95,31 +99,13 @@ void cipher(char inputString[], int outputString[], int step, CipherOption optio
     outputString[i] = '\0';
 }
 
-void printCipherAlphabet(int n, CipherOption option) {
-    char str[ABCSIZE]; 
-    fillAlphabet(str);
-    for(int i = 0; i < ABCSIZE; i++) {
-        printf("[%c]", str[i]);
-    }
-    printf("\nWith step of %d\n", n);
-    for(int i = 0; i < ABCSIZE; i++) {
-        str[i] += option == ENCRYPT ? n : -n;
-        if(option == ENCRYPT ? str[i] > 'Z' : str[i] < 'A') {
-            str[i] += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
-        }
-    }
-    for(int i = 0; i < ABCSIZE; i++) {
-        printf("[%c]", str[i]);
+void printCipherText(int cipherText[]) {
+    for(int i = 0; cipherText[i] != '\0'; i++) {
+        printf("%c", cipherText[i]);
     }
 }
 
-void printArr(int arr[]) {
-    for(int i = 0; arr[i] != '\0'; i++) {
-        printf("%c", arr[i]);
-    }
-}
-
-void printResult(int arr[], CipherOption option) {
+void printResult(int cipherText[], CipherOption option) {
     switch(option) {
         case ENCRYPT:
             printf("\nThe Encrypted text is:\n" GREEN);
@@ -129,23 +115,31 @@ void printResult(int arr[], CipherOption option) {
             printf("\nThe Decrypted text is:\n" GREEN);
         break;
     }
-    printArr(arr);
+    printCipherText(cipherText);
+    printf(DEFAULT);
 }
 
-int main() {
+void readPlainText(char str[]) {
+    printf("\nEnter the text to encrypt or decrypt (Maximum %d characters and should not contain special characters):\n", MAXSIZE);
+    fgets(str, MAXSIZE, stdin);
+    clearBuffer(str);
+}
+
+void processText() {
     char text[MAXSIZE];
     int textConversion[MAXSIZE];
     
     CipherOption option = displayCipherMenuAndGetChoice();
     int step = requestCipherStepSize();
     
-    printf("\nEnter the text to process (Maximum %d characters and should not contain special characters):\n", MAXSIZE);
-    readCharArray(text);
+    readPlainText(text);
     
     cipher(text, textConversion, step, option);
     printCipherAlphabet(step, option);
     printResult(textConversion, option);
-    
-    printf(DEFAULT);
+}
+
+int main() {
+    processText();
     return 0;
 }
