@@ -9,7 +9,9 @@
 
 #define RED "\033[0;31m"
 #define GREEN "\033[0;32m"
+#define BLUE "\033[0;34m"
 #define DEFAULT "\033[0m"
+
 
 #define MIN_STEP_SIZE 1
 #define MAX_STEP_SIZE 25
@@ -33,7 +35,6 @@ void fillAlphabet(char arr[]) {
     }
 }
 
-
 typedef enum {
     ENCRYPT,
     DECRYPT
@@ -44,7 +45,7 @@ CipherOption displayCipherMenuAndGetChoice() {
     do {
         printf("\n\tCaesar Cipher\n\n");
         printf("1: Encrypt\t2: Decrypt\n");
-        printf("Please enter your choice (1 or 2): ");
+        printf("Please enter your choice (1 or 2):\n");
         scanf("%d", &option);
 
         // Clear the input buffer
@@ -72,17 +73,16 @@ int requestCipherStepSize() {
 }
 
 char shiftCharacter(char character, int step, CipherOption option) {
-    character += option == ENCRYPT ? step : -step;
-    if(islower(character)) {
-        if(option == ENCRYPT ? character > 'z' : character < 'a') {
-            character += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
-        }
+    if (option == DECRYPT) {
+        step = -step;
     }
-    else {
-        if(option == ENCRYPT ? character > 'Z' : character < 'A') {
-            character += option == ENCRYPT ? -ABCSIZE : ABCSIZE;
-        }
+
+    if (islower(character)) {
+        character = ((character - 'a' + step) % ABCSIZE + ABCSIZE) % ABCSIZE + 'a';
+    } else if (isupper(character)) {
+        character = ((character - 'A' + step) % ABCSIZE + ABCSIZE) % ABCSIZE + 'A';
     }
+
     return character;
 }
 
@@ -99,13 +99,31 @@ void cipher(char inputString[], int outputString[], int step, CipherOption optio
     outputString[i] = '\0';
 }
 
-void printCipherText(int cipherText[]) {
-    for(int i = 0; cipherText[i] != '\0'; i++) {
-        printf("%c", cipherText[i]);
+void printCipherAlphabet(int step, CipherOption option) {
+    char alphabet[ABCSIZE];
+    fillAlphabet(alphabet);
+    printf(RED);
+    for(int i = 0; i < ABCSIZE; i++) {
+        printf("[%c]", alphabet[i]);
+    }
+    printf(DEFAULT);
+    printf("\nThe Cipher Alphabet for step" BLUE " %d " DEFAULT "is:\n", step);
+    printf(GREEN);  
+    for(int i = 0; i < ABCSIZE; i++) {
+        printf("[%c]", shiftCharacter(alphabet[i], step, option));
+    }
+    printf(DEFAULT);
+    printf("\n");
+}
+
+void printIntArr(int arr[]) {
+    for(int i = 0; arr[i] != '\0'; i++) {
+        printf("%c", arr[i]);
     }
 }
 
-void printResult(int cipherText[], CipherOption option) {
+void printResult(char str[], int cipherText[], CipherOption option) {
+    printf(RED "%s" DEFAULT, str);
     switch(option) {
         case ENCRYPT:
             printf("\nThe Encrypted text is:\n" GREEN);
@@ -115,7 +133,7 @@ void printResult(int cipherText[], CipherOption option) {
             printf("\nThe Decrypted text is:\n" GREEN);
         break;
     }
-    printCipherText(cipherText);
+    printIntArr(cipherText);
     printf(DEFAULT);
 }
 
@@ -125,7 +143,7 @@ void readPlainText(char str[]) {
     clearBuffer(str);
 }
 
-void processText() {
+int main() {
     char text[MAXSIZE];
     int textConversion[MAXSIZE];
     
@@ -136,10 +154,6 @@ void processText() {
     
     cipher(text, textConversion, step, option);
     printCipherAlphabet(step, option);
-    printResult(textConversion, option);
-}
-
-int main() {
-    processText();
+    printResult(text, textConversion, option);
     return 0;
 }
